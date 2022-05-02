@@ -89,9 +89,14 @@ if __name__ == '__main__':
     )
 
     #pass in the waveform to the model (currently cropping to 40 seconds)
-    inwav = waveform[:, :5*in_fs]
-    with torch.inference_mode():
-        emission, _ = model(inwav)
+    emission = torch.empty((2, 0, 32), dtype=torch.float32)
+    tmp_emission = torch.empty((2, 0, 32), dtype=torch.float32)
+    N = 10*in_fs
+    for i in range(4):
+        inwav = waveform[:, i * N:(i * N) + N - 1]
+        with torch.inference_mode():
+            tmp_emission, _ = model(inwav)
+            emission = torch.cat((emission, tmp_emission), 1)
 
     decoded_txt = decoder(emission[0])
     transcript = decoded_txt.replace('|', ' ')
