@@ -91,8 +91,11 @@ if __name__ == '__main__':
     #pass in the waveform to the model (currently cropping to 40 seconds)
     emission = torch.empty((2, 0, 32), dtype=torch.float32)
     tmp_emission = torch.empty((2, 0, 32), dtype=torch.float32)
-    N = 10*in_fs
-    for i in range(4):
+    T = waveform.size()[1] / sample_rate; #total samples
+    N = 10*in_fs #10 seconds of samples
+    Z = int(np.floor(T / 100.0) * 10) #number of times to loop through things
+
+    for i in range(Z):
         inwav = waveform[:, i * N:(i * N) + N - 1]
         with torch.inference_mode():
             tmp_emission, _ = model(inwav)
